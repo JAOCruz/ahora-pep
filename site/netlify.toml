@@ -1,10 +1,10 @@
 [build]
   publish = "."
 
-# Same-origin proxy to the live inventory API (the live API has no CORS).
+# Same-origin proxy to the inventory API of the previous Next.js deploy (permalink keeps its functions alive)
 [[redirects]]
   from = "/api/*"
-  to = "https://ahorapep.netlify.app/api/:splat"
+  to = "https://6a957d131ca32346024bc569--ahorapep.netlify.app/api/:splat"
   status = 200
   force = true
 
