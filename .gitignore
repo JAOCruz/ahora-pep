@@ -1,0 +1,9 @@
+# old Next.js build artifacts
+_next/
+# raw video originals (20+ MB each) — web versions live in site/assets/video
+videos/
+# any stray large mp4 (>10 MB): re-encode with ffmpeg instead of committing
+
+node_modules/
+.DS_Store
+.netlify/

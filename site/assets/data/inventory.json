@@ -1,0 +1,206 @@
+{
+ "products": [
+  {
+   "id": 26,
+   "name": "5 amino 1 mq",
+   "category": "peptide",
+   "dosage": "50mg",
+   "price": 3000,
+   "available": true
+  },
+  {
+   "id": 42,
+   "name": "Bac Water Hospira",
+   "category": "peptide",
+   "dosage": "30ml",
+   "price": 2500,
+   "available": true
+  },
+  {
+   "id": 41,
+   "name": "BPC157 + TB500",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 6000,
+   "available": true
+  },
+  {
+   "id": 33,
+   "name": "Cerebroprotein (hydrolysate)",
+   "category": "peptide",
+   "dosage": "60mg",
+   "price": 5000,
+   "available": true
+  },
+  {
+   "id": 35,
+   "name": "CJC-1295 DAC",
+   "category": "peptide",
+   "dosage": "5mg",
+   "price": 6650,
+   "available": true
+  },
+  {
+   "id": 4,
+   "name": "CJC1295 no dac + ipamorelin",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 5050,
+   "available": true
+  },
+  {
+   "id": 34,
+   "name": "Epitalon",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 3600,
+   "available": true
+  },
+  {
+   "id": 5,
+   "name": "GHK-Cu",
+   "category": "peptide",
+   "dosage": "50mg",
+   "price": 2600,
+   "available": true
+  },
+  {
+   "id": 6,
+   "name": "Glow",
+   "category": "peptide",
+   "dosage": "70mg",
+   "price": 6500,
+   "available": true
+  },
+  {
+   "id": 16,
+   "name": "KPV",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 4000,
+   "available": true
+  },
+  {
+   "id": 38,
+   "name": "MOTs-C",
+   "category": "peptide",
+   "dosage": "40mg",
+   "price": 9800,
+   "available": true
+  },
+  {
+   "id": 18,
+   "name": "MOTs-C",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 3500,
+   "available": true
+  },
+  {
+   "id": 7,
+   "name": "NAD (buffered)",
+   "category": "peptide",
+   "dosage": "500mg",
+   "price": 5000,
+   "available": true
+  },
+  {
+   "id": 19,
+   "name": "PT141",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 3000,
+   "available": true
+  },
+  {
+   "id": 8,
+   "name": "Retatrutide",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 6000,
+   "available": true
+  },
+  {
+   "id": 20,
+   "name": "Retatrutide",
+   "category": "peptide",
+   "dosage": "20mg",
+   "price": 8000,
+   "available": true
+  },
+  {
+   "id": 25,
+   "name": "Retatrutide",
+   "category": "peptide",
+   "dosage": "30mg",
+   "price": 10500,
+   "available": true
+  },
+  {
+   "id": 27,
+   "name": "Selank",
+   "category": "peptide",
+   "dosage": "5mg",
+   "price": 2500,
+   "available": true
+  },
+  {
+   "id": 36,
+   "name": "Semaglutide",
+   "category": "peptide",
+   "dosage": "30mg",
+   "price": 4400,
+   "available": true
+  },
+  {
+   "id": 10,
+   "name": "Semax",
+   "category": "peptide",
+   "dosage": "5mg",
+   "price": 2500,
+   "available": true
+  },
+  {
+   "id": 30,
+   "name": "SS31",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 3600,
+   "available": true
+  },
+  {
+   "id": 14,
+   "name": "Tesamorelin",
+   "category": "peptide",
+   "dosage": "20mg",
+   "price": 8500,
+   "available": true
+  },
+  {
+   "id": 12,
+   "name": "Tirzepatide",
+   "category": "peptide",
+   "dosage": "10mg",
+   "price": 3100,
+   "available": true
+  },
+  {
+   "id": 28,
+   "name": "Bac Water",
+   "category": "supply",
+   "dosage": "3ml",
+   "price": 500,
+   "available": true
+  },
+  {
+   "id": 21,
+   "name": "Bac Water",
+   "category": "supply",
+   "dosage": "10ml",
+   "price": 1250,
+   "available": true
+  }
+ ],
+ "total_items": 25,
+ "updated_at": "2026-09-29T00:48:21.903902"
+}

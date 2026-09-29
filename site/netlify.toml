@@ -1,0 +1,26 @@
+[build]
+  publish = "."
+
+# Same-origin proxy to the live inventory API (the live API has no CORS).
+[[redirects]]
+  from = "/api/*"
+  to = "https://ahorapep.netlify.app/api/:splat"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
