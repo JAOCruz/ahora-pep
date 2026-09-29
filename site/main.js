@@ -13,6 +13,9 @@
   const FALLBACK_URL = 'assets/data/inventory.json';
   const LOCAL = ['localhost', '127.0.0.1', ''].includes(location.hostname) || location.protocol === 'file:';
   const LS = { ack: 'ap_ack_v1', cart: 'ap_cart_v1' };
+  // Pricing / visibility rules applied on top of the inventory feed
+  const MARKUP = 1.15;                      // +15% over the feed price, rounded to RD$10
+  const HIDDEN = [/^reta/i];                // products taken off the catalog (Retatrutide)
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -136,7 +139,8 @@
   const grid = $('#cat-grid'), status = $('#cat-status'), search = $('#cat-search'), filter = $('#cat-filter');
   let groups = [], cat = 'all', q = '';
   const SENSITIVE = ['wholesale_price', 'suggested_retail', 'margin_pct', 'qty'];
-  const clean = p => ({ id: p.id, name: String(p.name || '').trim(), category: p.category || 'peptide', dosage: String(p.dosage || ''), price: Number(p.price) || 0, available: p.available !== false });
+  const clean = p => ({ id: p.id, name: String(p.name || '').trim(), category: p.category || 'peptide', dosage: String(p.dosage || ''), price: Math.round((Number(p.price) || 0) * MARKUP / 10) * 10, available: p.available !== false });
+  const hidden = p => HIDDEN.some(re => re.test(p.name));
   const doseNum = d => parseFloat(String(d).replace(',', '.')) || 0;
   const label = n => NAMES[n.toLowerCase()] || n;
   const hueIdx = s => [...s].reduce((a, c) => a + c.charCodeAt(0), 0) % HUES.length;
@@ -146,7 +150,7 @@
 
   function group(products) {
     const map = new Map();
-    products.filter(p => p.available).forEach(p => {
+    products.filter(p => p.available && !hidden(p)).forEach(p => {
       const key = p.name.toLowerCase() + '|' + p.category;
       if (!map.has(key)) map.set(key, { key, name: label(p.name), raw: p.name, category: p.category, variants: [] });
       map.get(key).variants.push(p);
@@ -171,6 +175,7 @@
     const products = data.products.map(clean);
     SENSITIVE.forEach(k => data.products.forEach(p => delete p[k]));
     groups = group(products);
+    syncCart(products);
     grid.setAttribute('aria-busy', 'false');
     grid.dataset.source = source;
     render();
@@ -243,6 +248,13 @@
   const save = () => { try { localStorage.setItem(LS.cart, JSON.stringify(cart)); } catch (e) {} };
   const total = () => cart.reduce((a, i) => a + i.price * i.qty, 0);
 
+  // saved quotes: drop hidden/unavailable items and refresh prices from the catalog
+  function syncCart(products) {
+    const byId = new Map(products.filter(p => p.available && !hidden(p)).map(p => [String(p.id), p]));
+    cart = cart.filter(i => byId.has(String(i.id)));
+    cart.forEach(i => { i.price = byId.get(String(i.id)).price; });
+    save(); renderCart();
+  }
   function cartAdd(item) {
     const ex = cart.find(i => i.id === item.id);
     if (ex) ex.qty += 1; else cart.push({ ...item, qty: 1 });
