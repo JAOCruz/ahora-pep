@@ -102,7 +102,7 @@ html.no-3d .dna-stage__fallback { display: block; }
   position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 20px;
   padding: 14px var(--gutter); transition: transform 0.6s var(--ease), background 0.4s, backdrop-filter 0.4s;
 }
-.nav.is-scrolled { background: rgba(5, 7, 15, 0.55); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid var(--line); }
+.nav.is-scrolled { background: rgba(5, 7, 15, 0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid var(--line); }
 .nav.is-hidden { transform: translateY(-110%); }
 .nav__logo { font-family: var(--serif); font-size: 26px; letter-spacing: -0.01em; }
 .nav__logo b { font-weight: 400; background: linear-gradient(95deg, var(--blue), var(--rose)); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -289,7 +289,7 @@ section { position: relative; padding: clamp(80px, 10vw, 140px) var(--gutter); }
 .cart__clear { font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; justify-self: center; }
 
 /* ---------- Toast ---------- */
-.toast { position: fixed; left: 50%; bottom: 28px; z-index: 140; transform: translate(-50%, 20px); padding: 12px 20px; border-radius: 999px; background: var(--ink); color: #061020; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.4s, transform 0.5s var(--ease); box-shadow: 0 20px 50px -20px rgba(255,255,255,0.5); }
+.toast { position: fixed; left: 50%; bottom: 28px; z-index: 125; transform: translate(-50%, 20px); padding: 12px 20px; border-radius: 999px; background: var(--ink); color: #061020; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.4s, transform 0.5s var(--ease); box-shadow: 0 20px 50px -20px rgba(255,255,255,0.5); }
 .toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---------- Reveal ---------- */

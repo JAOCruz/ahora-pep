@@ -245,7 +245,7 @@
   function cartAdd(item) {
     const ex = cart.find(i => i.id === item.id);
     if (ex) ex.qty += 1; else cart.push({ ...item, qty: 1 });
-    save(); renderCart();
+    save(); renderCart(); nav.classList.remove('is-hidden');
     if (hasGsap && !reduced) gsap.fromTo(countEl, { scale: 1.5 }, { scale: 1, duration: 0.5, ease: 'back.out(2)' });
   }
   function waMessage() {
