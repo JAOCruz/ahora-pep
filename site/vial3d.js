@@ -123,7 +123,7 @@ function main() {
   const capDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.02, seg, 1), new THREE.MeshStandardMaterial({ color: 0x1a1d26, roughness: 0.6, metalness: 0.2 })); capDisc.position.y = 2.66; vial.add(capDisc);
   // wrap-around label
   const lc = labelCanvas(); drawLabel(lc, { name: 'Péptido de investigación', dosage: '—', line: 0 });
-  const ltex = new THREE.CanvasTexture(lc); ltex.colorSpace = THREE.SRGBColorSpace; ltex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); ltex.wrapS = THREE.ClampToEdgeWrapping;
+  const ltex = new THREE.CanvasTexture(lc); ltex.colorSpace = THREE.SRGBColorSpace; ltex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); ltex.wrapS = THREE.RepeatWrapping; ltex.repeat.x = -1; ltex.offset.x = 1;
   const label = new THREE.Mesh(new THREE.CylinderGeometry(0.642, 0.642, 0.98, seg, 1, true, Math.PI * 0.55, Math.PI * 1.9), new THREE.MeshStandardMaterial({ map: ltex, roughness: 0.55, metalness: 0, side: THREE.DoubleSide }));
   label.position.y = 0.92; vial.add(label);
   vial.position.y = -0.05;
