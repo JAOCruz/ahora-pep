@@ -34,17 +34,16 @@ const PAL = [
 /* ---------- Scroll keyframes (P: 0..1 hero pin, 1..2 rest of page) ---------- */
 const OX = mobile ? 0 : 1;
 const KF = [
-  // Hero: one continuous zoom-in — cloud → helix → fly into it while it unzips; the next section enters from the zoomed-in moment
-  { p: 0.00, fAsm: 0.00, un: 0, cz: 15.5, ox: OX * 1.2, oy: 0.2, tilt: -0.55, spin: 0.0, op: 0.95, pal: 0.0, glow: 0.7 },
-  { p: 0.32, fAsm: 1.00, un: 0, cz: 11.0, ox: OX * 1.0, oy: 0.0, tilt: -0.50, spin: 1.1, op: 1.00, pal: 0.0, glow: 0.9 },
-  { p: 0.62, fAsm: 1.00, un: 0, cz: 7.0, ox: 0.0, oy: 0.0, tilt: -0.34, spin: 2.3, op: 1.00, pal: 1.0, glow: 1.1 },
-  { p: 0.84, fAsm: 1.00, un: 0.75, cz: 5.2, ox: 0.0, oy: -0.3, tilt: -0.24, spin: 3.2, op: 1.00, pal: 1.8, glow: 1.0 },
-  { p: 1.00, fAsm: 1.00, un: 1, cz: 4.0, ox: 0.0, oy: -0.5, tilt: -0.18, spin: 3.8, op: 0.95, pal: 2.0, glow: 0.7 },
-  { p: 1.16, fAsm: 1.00, un: 0, cz: 14.0, ox: OX * 4.4, oy: -0.8, tilt: -0.62, spin: 4.8, op: 0.38, pal: 0.0, glow: 0.45 },
-  { p: 1.46, fAsm: 1.00, un: 0, cz: 12.0, ox: OX * -4.6, oy: 0.0, tilt: -0.40, spin: 6.2, op: 0.32, pal: 0.6, glow: 0.5 },
-  { p: 1.70, fAsm: 1.00, un: 0.5, cz: 12.5, ox: OX * 3.6, oy: 0.0, tilt: -0.52, spin: 7.6, op: 0.40, pal: 1.2, glow: 0.5 },
-  { p: 1.86, fAsm: 1.00, un: 0, cz: 9.5, ox: 0.0, oy: 0.0, tilt: -0.12, spin: 8.6, op: 1.00, pal: 2.0, glow: 0.7 },
-  { p: 2.00, fAsm: 1.00, un: 0, cz: 9.5, ox: 0.0, oy: 0.0, tilt: -0.12, spin: 9.2, op: 1.00, pal: 2.0, glow: 0.7 },
+  // Hero (short pin): a sparse cloud gathers into the helix and zooms in as it turns orange, then the next section takes over
+  { p: 0.00, fAsm: 0.00, un: 0, cz: 15.5, ox: OX * 2.3, oy: 0.2, tilt: -0.55, spin: 0.0, op: 0.9, pal: 0.0, glow: 0.4, rev: 0.1, amb: 0.14 },
+  { p: 0.50, fAsm: 1.00, un: 0, cz: 11.0, ox: OX * 1.4, oy: 0.0, tilt: -0.50, spin: 1.2, op: 1.00, pal: 0.0, glow: 0.75, rev: 1.0, amb: 0.6 },
+  { p: 1.00, fAsm: 1.00, un: 0.12, cz: 7.2, ox: OX * 0.5, oy: -0.1, tilt: -0.34, spin: 2.4, op: 1.00, pal: 1.0, glow: 0.9, rev: 1.0, amb: 0.7 },
+  // Rest of the page: dim, dark background, helix parked in the margins away from text
+  { p: 1.14, fAsm: 1.00, un: 0, cz: 14.0, ox: OX * 4.6, oy: -0.8, tilt: -0.62, spin: 3.6, op: 0.30, pal: 1.0, glow: 0.12, rev: 1.0, amb: 0.3 },
+  { p: 1.46, fAsm: 1.00, un: 0, cz: 13.0, ox: OX * -4.9, oy: 0.0, tilt: -0.40, spin: 5.2, op: 0.26, pal: 0.3, glow: 0.10, rev: 1.0, amb: 0.3 },
+  { p: 1.70, fAsm: 1.00, un: 0.5, cz: 13.0, ox: OX * 4.8, oy: 0.0, tilt: -0.52, spin: 6.8, op: 0.28, pal: 1.4, glow: 0.10, rev: 1.0, amb: 0.3 },
+  { p: 1.86, fAsm: 1.00, un: 0, cz: 9.5, ox: 0.0, oy: 0.0, tilt: -0.12, spin: 8.0, op: 1.00, pal: 2.0, glow: 0.22, rev: 1.0, amb: 0.2 },
+  { p: 2.00, fAsm: 1.00, un: 0, cz: 9.5, ox: 0.0, oy: 0.0, tilt: -0.12, spin: 8.6, op: 1.00, pal: 2.0, glow: 0.22, rev: 1.0, amb: 0.2 },
 ];
 const FIELDS = Object.keys(KF[0]).filter(k => k !== 'p');
 const sm = t => t * t * (3 - 2 * t);
@@ -58,7 +57,7 @@ function stateAt(P, out) {
 
 /* ---------- Shaders ---------- */
 const VERT = /* glsl */`
-uniform float uTime, uAssemble, uUnravel, uSpin, uTilt, uPr, uFocus, uCoC, uSize, uOpacity, uBreath;
+uniform float uTime, uAssemble, uUnravel, uSpin, uTilt, uPr, uFocus, uCoC, uSize, uOpacity, uBreath, uReveal, uAmb;
 uniform vec3 uColA, uColB, uColR; uniform vec2 uOff;
 attribute vec3 aHelix, aAlt, aCloud; attribute vec4 aSeed;
 varying vec4 vCol; varying float vHot;
@@ -99,14 +98,15 @@ void main(){
   if (kind > 2.5) coc = clamp(abs(d - uFocus) * uCoC, 0.0, 1.0);   // bokeh only on the depth layers
   else coc = 0.35 * (1.0 - fAsm);                                  // slight softness while still a cloud
   float sz = aSeed.y * uSize * uPr * (1.0 + coc * 3.0 + spark * 0.8 + u * 0.7) * 150.0 / d;
-  gl_PointSize = clamp(sz, 1.0, (kind > 2.5 ? 40.0 : 18.0) * uPr);
+  float vis = kind > 2.5 ? step(rnd, uAmb) : smoothstep(rnd - 0.12, rnd, uReveal * 1.12);
+  gl_PointSize = vis > 0.0 ? clamp(sz, 1.0, (kind > 2.5 ? 24.0 : 18.0) * uPr) : 0.0;
   float a = uOpacity * (1.0 - coc * 0.8) * smoothstep(44.0, 16.0, d) * (0.55 + 0.45 * aSeed.y);
-  a *= 0.82 + 0.18 * sin(uTime * 1.7 + rnd * 50.0);
+  a *= (0.82 + 0.18 * sin(uTime * 1.7 + rnd * 50.0)) * vis;
   vec3 col;
   if (kind < 0.5) col = uColA;
   else if (kind < 1.5) col = uColB;
   else if (kind < 2.5) { col = mix(uColR, uColB, 0.35 + 0.4 * rnd); a *= (1.0 - spark * spark) * (0.4 + 0.6 * fAsm); }
-  else { col = mix(uColA, uColB, rnd); a *= 0.28; }
+  else { col = mix(uColA, uColB, rnd); a *= 0.2; }
   if (kind < 2.5) { col = mix(mix(uColA, uColB, rnd) * 0.8, col, fAsm); a *= 0.55 + 0.45 * fAsm; }
   vHot = kind > 2.5 ? 0.15 : (0.45 + 0.55 * fract(rnd * 9.7)) * (1.0 - 0.5 * (1.0 - fAsm)) + spark * 0.6;
   vCol = vec4(col, a);
@@ -198,7 +198,7 @@ function main() {
 
   const U = {
     uTime: { value: 0 }, uAssemble: { value: 0 }, uUnravel: { value: 0 }, uSpin: { value: 0 }, uTilt: { value: -0.5 }, uPr: { value: renderer.getPixelRatio() },
-    uFocus: { value: 12 }, uCoC: { value: 0.12 }, uSize: { value: mobile ? 0.9 : 1.0 }, uOpacity: { value: 1 }, uBreath: { value: 1 },
+    uFocus: { value: 12 }, uCoC: { value: 0.12 }, uSize: { value: mobile ? 0.9 : 1.0 }, uOpacity: { value: 1 }, uBreath: { value: 1 }, uReveal: { value: 1 }, uAmb: { value: 1 },
     uColA: { value: PAL[0][0].clone() }, uColB: { value: PAL[0][1].clone() }, uColR: { value: PAL[0][2].clone() }, uOff: { value: new THREE.Vector2() },
   };
   const helix = new THREE.Points(buildHelix(), new THREE.ShaderMaterial({ uniforms: U, vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending }));
@@ -218,7 +218,7 @@ function main() {
   const st = {}; const tmpA = new THREE.Color(), tmpB = new THREE.Color(), tmpR = new THREE.Color();
   const hudPhases = [...hero.querySelectorAll('.hud__phases span')], legend = [...hero.querySelectorAll('.hero__legend span')];
   const hudCap = document.getElementById('hud-caption'), hudBar = document.getElementById('hud-bar');
-  const CAPTIONS = ['Miles de señales moleculares, todavía sin orden.', 'La estructura emerge: secuencia, pureza, precisión.', 'La hélice se abre: cada hebra, un compuesto documentado.'];
+  const CAPTIONS = ['Unas pocas señales moleculares, todavía sin orden.', 'La estructura emerge: secuencia, pureza, precisión.', 'La hélice se enciende: cada hebra, un compuesto documentado.'];
   let phase = -1, leg = -1;
 
   function palette(v) {
@@ -249,13 +249,14 @@ function main() {
     U.uAssemble.value = st.fAsm * (motion ? S.intro : 1);
     U.uUnravel.value = st.un; U.uSpin.value = st.spin + idle; U.uTilt.value = st.tilt;
     U.uOpacity.value = st.op; U.uOff.value.set(ox, oy); U.uFocus.value = cz;
+    U.uReveal.value = st.rev; U.uAmb.value = st.amb;
     bgU.uGlow.value = st.glow;
     palette(st.pal);
     camera.position.set(S.ptr.x * 1.1, -S.ptr.y * 0.7, cz);
     camera.lookAt(S.ptr.x * 0.3, -S.ptr.y * 0.2, 0);
     if (bloom) bloom.strength = 0.18 + 0.16 * st.glow;
     if (S.P <= 1) {
-      const idx = S.P < 0.3 ? 0 : S.P < 0.7 ? 1 : 2;
+      const idx = S.P < 0.3 ? 0 : S.P < 0.72 ? 1 : 2;
       if (idx !== phase) { phase = idx; hudPhases.forEach((s, i) => s.classList.toggle('is-on', i === idx)); hudCap.textContent = CAPTIONS[idx]; }
       const l = Math.round(st.pal);
       if (l !== leg) { leg = l; legend.forEach((s, i) => s.classList.toggle('is-on', i === l)); }
@@ -296,9 +297,9 @@ function main() {
   /* ---------- Scroll story ---------- */
   html.classList.add('has-3d');
   if (motion) {
-    const pinLen = () => Math.round(innerHeight * (mobile ? 1.8 : 2.0));
+    const pinLen = () => Math.round(innerHeight * (mobile ? 1.0 : 1.1));
     const tl = gsap.timeline({ paused: true });
-    tl.to('.hero__inner', { yPercent: -14, opacity: 0, scale: 0.96, ease: 'power2.in', duration: 1 }, 0).to({}, { duration: 2.2 });
+    tl.to('.hero__inner', { yPercent: -14, opacity: 0, scale: 0.96, ease: 'power2.in', duration: 1 }, 0).to({}, { duration: 1.2 });
     ScrollTrigger.create({
       trigger: hero, start: 'top top', end: () => '+=' + pinLen(), pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true, refreshPriority: 5, animation: tl,
       onUpdate: self => { S.P = self.progress; hero.classList.toggle('is-story', self.progress > 0.02); },

@@ -100,7 +100,7 @@
     <div class="hud__phases">
       <span data-i="0"><b>01</b><i>Dispersión</i></span>
       <span data-i="1"><b>02</b><i>Ensamblaje</i></span>
-      <span data-i="2"><b>03</b><i>Liberación</i></span>
+      <span data-i="2"><b>03</b><i>Activación</i></span>
     </div>
     <p class="hud__caption" id="hud-caption">Miles de señales moleculares, todavía sin orden.</p>
     <div class="hud__bar"><s id="hud-bar"></s></div>
@@ -137,36 +137,45 @@
 
 <!-- ===== Catalog ===== -->
 <section class="catalog" id="catalogo" aria-labelledby="catalog-title">
-  <div class="catalog__intro">
-    <header class="section-head reveal">
+  <header class="section-head section-head--split reveal">
+    <div>
       <span class="eyebrow">Catálogo</span>
       <h2 id="catalog-title" class="display">Moléculas que <em>ordenan.</em></h2>
+    </div>
+    <div>
       <p class="section-lead">Compuestos de investigación seleccionados por su perfil documentado. Precios en pesos dominicanos (DOP). Cotización sin compromiso por WhatsApp.</p>
       <p class="catalog__hint">Pasa el cursor por un producto y el vial cambia de etiqueta.</p>
-    </header>
-    <div class="vial-stage reveal" id="vial-stage" aria-label="Vial de vidrio 3D, ilustrativo" role="img">
-      <span class="vial-stage__tag" id="vial-tag">AhoraPep · Vial 3D</span>
+    </div>
+  </header>
+  <div class="catalog__body">
+    <aside class="catalog__aside">
+      <div class="vial-stage" id="vial-stage" aria-label="Vial de vidrio 3D, ilustrativo" role="img">
+        <span class="vial-stage__tag" id="vial-tag">AhoraPep · Vial 3D</span>
+        <p class="vial-stage__caption" id="vial-caption" aria-live="polite"></p>
+      </div>
+    </aside>
+    <div class="catalog__main">
+      <div class="catalog__tools">
+        <div class="chips" id="cat-filter" role="tablist" aria-label="Categoría">
+          <button role="tab" aria-selected="true" data-cat="all" type="button">Todos</button>
+          <button role="tab" aria-selected="false" data-cat="peptide" type="button">Péptidos</button>
+          <button role="tab" aria-selected="false" data-cat="supply" type="button">Suministros</button>
+        </div>
+        <label class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input type="search" id="cat-search" placeholder="Buscar compuesto…" autocomplete="off" aria-label="Buscar en el catálogo">
+        </label>
+        <p class="catalog__status" id="cat-status" aria-live="polite"></p>
+      </div>
+      <div class="catalog__grid" id="cat-grid" aria-live="polite" aria-busy="true"></div>
+      <p class="catalog__note">Todos los compuestos se suministran exclusivamente para investigación. No aptos para consumo humano.</p>
     </div>
   </div>
-  <div class="catalog__tools reveal">
-    <div class="chips" id="cat-filter" role="tablist" aria-label="Categoría">
-      <button role="tab" aria-selected="true" data-cat="all" type="button">Todos</button>
-      <button role="tab" aria-selected="false" data-cat="peptide" type="button">Péptidos</button>
-      <button role="tab" aria-selected="false" data-cat="supply" type="button">Suministros</button>
-    </div>
-    <label class="search">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-      <input type="search" id="cat-search" placeholder="Buscar compuesto…" autocomplete="off" aria-label="Buscar en el catálogo">
-    </label>
-    <p class="catalog__status" id="cat-status" aria-live="polite"></p>
-  </div>
-  <div class="catalog__grid" id="cat-grid" aria-live="polite" aria-busy="true"></div>
-  <p class="catalog__note">Todos los compuestos se suministran exclusivamente para investigación. No aptos para consumo humano.</p>
 </section>
 
 <!-- ===== Science / philosophy ===== -->
 <section class="science" id="ciencia" aria-labelledby="science-title">
-  <div class="science__reveal">
+  <div class="science__reveal panel">
     <span class="eyebrow reveal">Nuestra filosofía</span>
     <h2 id="science-title" class="display reveal">Donde la biología encuentra la <em>precisión.</em></h2>
     <p class="science__text" id="science-text">Los péptidos son mensajeros moleculares: cadenas cortas de aminoácidos que participan en la señalización de procesos como la recuperación de tejidos, los ciclos de sueño y el metabolismo energético. En AhoraPep aplicamos los avances de la biomedicina para ofrecer compuestos de investigación de la más alta calidad, con documentación de soporte y controles de pureza en cada lote. No vendemos promesas: ofrecemos materiales trazables, respaldados por ciencia, para quienes investigan el potencial de la biología humana.</p>
@@ -192,7 +201,7 @@
     <span class="eyebrow">Preguntas frecuentes</span>
     <h2 id="faq-title" class="display">Lo que suelen <em>preguntarnos.</em></h2>
   </header>
-  <div class="faq__list reveal">
+  <div class="faq__list panel reveal">
     <details><summary>¿Qué son los péptidos de investigación?</summary><p>Son cadenas cortas de aminoácidos sintetizadas con fines de investigación científica. Se suministran como materiales de laboratorio, con documentación de soporte, y no están destinados a consumo humano ni a uso clínico.</p></details>
     <details><summary>¿Cómo cotizo un pedido?</summary><p>Agrega los compuestos a tu cotización y pulsa «Cotizar por WhatsApp». Se abrirá un mensaje prellenado con tu selección; respondemos con disponibilidad, total y opciones de pago.</p></details>
     <details><summary>¿Los precios incluyen envío?</summary><p>Los precios del catálogo son por unidad en pesos dominicanos (DOP) y no incluyen envío. El costo de envío se confirma en la cotización según la zona.</p></details>
@@ -207,7 +216,7 @@
   <div class="contact__media dna-frame reveal" id="dna-frame" aria-hidden="true">
     <span class="dna-frame__tag">Hélice AhoraPep · render en vivo</span>
   </div>
-  <div class="contact__body">
+  <div class="contact__body panel">
     <span class="eyebrow reveal">Contacto</span>
     <h2 id="contact-title" class="display reveal">Comienza tu <em>investigación.</em></h2>
     <p class="section-lead reveal">Cada consulta es privada y personalizada. Nuestro equipo está listo para orientarte en la selección de los compuestos adecuados para tu proyecto.</p>

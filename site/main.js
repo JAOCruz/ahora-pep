@@ -142,7 +142,7 @@
   const hueIdx = s => [...s].reduce((a, c) => a + c.charCodeAt(0), 0) % HUES.length;
   const hue = s => HUES[hueIdx(s)];
   const line = s => hueIdx(s) % 3;
-  const announce = (g, v) => dispatchEvent(new CustomEvent('ap:product', { detail: { name: g.name, dosage: v.dosage, line: line(g.raw) } }));
+  const announce = (g, v) => { window.__apProduct = { name: g.name, dosage: v.dosage, line: line(g.raw) }; dispatchEvent(new CustomEvent('ap:product', { detail: window.__apProduct })); };
 
   function group(products) {
     const map = new Map();
@@ -209,7 +209,8 @@
     if (list.length) announce(list[0], list[0].variants[0]);
   }
   grid.addEventListener('pointerover', e => {
-    const art = e.target.closest('.card'); if (!art || art === grid._hover) return; grid._hover = art;
+    const art = e.target.closest('.card'); if (!art || art === grid._hover) return;
+    grid._hover && grid._hover.classList.remove('is-active'); grid._hover = art; art.classList.add('is-active');
     const g = groups.find(x => x.key === art.dataset.key); if (g) announce(g, g.variants[+(art.dataset.i || 0)]);
   });
 
