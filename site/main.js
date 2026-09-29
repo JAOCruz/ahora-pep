@@ -128,15 +128,6 @@
     addSources(v, v.dataset[mobile ? 'mobileWebm' : 'desktopWebm'], v.dataset[mobile ? 'mobileMp4' : 'desktopMp4']);
   };
   setTimeout(() => { if (!html.classList.contains('has-3d') && !html.classList.contains('no-3d')) window.__dnaFallback(); }, 7000);
-  // Contact video: lazy
-  const cv = $('#contact-video');
-  if (cv && !reduced && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver(en => {
-      if (en[0].isIntersecting) { addSources(cv, cv.dataset.webm, cv.dataset.mp4); io.disconnect(); }
-    }, { rootMargin: '200px' });
-    io.observe(cv);
-  }
-
   /* ---------- Toast ---------- */
   const toastEl = $('#toast'); let toastT = 0;
   const toast = msg => { toastEl.textContent = msg; toastEl.classList.add('is-on'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('is-on'), 2200); };
@@ -148,7 +139,10 @@
   const clean = p => ({ id: p.id, name: String(p.name || '').trim(), category: p.category || 'peptide', dosage: String(p.dosage || ''), price: Number(p.price) || 0, available: p.available !== false });
   const doseNum = d => parseFloat(String(d).replace(',', '.')) || 0;
   const label = n => NAMES[n.toLowerCase()] || n;
-  const hue = s => HUES[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % HUES.length];
+  const hueIdx = s => [...s].reduce((a, c) => a + c.charCodeAt(0), 0) % HUES.length;
+  const hue = s => HUES[hueIdx(s)];
+  const line = s => hueIdx(s) % 3;
+  const announce = (g, v) => dispatchEvent(new CustomEvent('ap:product', { detail: { name: g.name, dosage: v.dosage, line: line(g.raw) } }));
 
   function group(products) {
     const map = new Map();
@@ -186,7 +180,7 @@
     const multi = g.variants.length > 1;
     const c = hue(g.raw);
     const fill = 45 + (doseNum(g.variants[0].dosage) % 40);
-    return `<article class="card" data-key="${g.key}" style="--c:${c};--c-glow:${c}55">
+    return `<article class="card" data-key="${g.key}" data-line="${line(g.raw)}" style="--c:${c};--c-glow:${c}55">
       <div class="card__top">
         <div class="vial" aria-hidden="true"><div class="vial__cap"></div><div class="vial__neck"></div><div class="vial__body"><div class="vial__liquid" style="--fill:${fill}%"></div><div class="vial__glint"></div></div></div>
         <div class="card__meta">
@@ -212,7 +206,12 @@
     const n = list.reduce((a, g) => a + g.variants.length, 0);
     status.textContent = `${list.length} compuesto${list.length === 1 ? '' : 's'} · ${n} presentaci${n === 1 ? 'ón' : 'ones'}`;
     if (hasGsap && !reduced) gsap.fromTo('.card', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.04, ease: 'power3.out', clearProps: 'transform' });
+    if (list.length) announce(list[0], list[0].variants[0]);
   }
+  grid.addEventListener('pointerover', e => {
+    const art = e.target.closest('.card'); if (!art || art === grid._hover) return; grid._hover = art;
+    const g = groups.find(x => x.key === art.dataset.key); if (g) announce(g, g.variants[+(art.dataset.i || 0)]);
+  });
 
   grid.addEventListener('click', e => {
     const el = e.target.closest('button'); if (!el) return;
@@ -221,6 +220,7 @@
       $$('.card__doses button', art).forEach(b => b.setAttribute('aria-pressed', String(b === el)));
       art.dataset.i = el.dataset.i;
       $('[data-price]', art).textContent = money(g.variants[+el.dataset.i].price);
+      announce(g, g.variants[+el.dataset.i]);
     } else if (el.hasAttribute('data-add')) {
       const v = g.variants[+(art.dataset.i || 0)];
       cartAdd({ id: v.id, name: g.name, dosage: v.dosage, price: v.price });

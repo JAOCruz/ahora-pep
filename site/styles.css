@@ -1,6 +1,6 @@
 /* =====================================================================
    AhoraPep — bioluminescent, clinical-luxury.
-   Dark stage, one botanical light interlude, brand hues blue→orange→pink.
+   Dark stage, glass vial, brand hues blue→orange→pink.
    ===================================================================== */
 :root {
   --bg: #05070f;
@@ -47,7 +47,6 @@ main { position: relative; z-index: 1; }
   letter-spacing: 0.22em; text-transform: uppercase; color: var(--cyan); margin-bottom: 18px;
 }
 .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); }
-.eyebrow--dark { color: #3b7a4d; }
 .display { font-family: var(--serif); font-size: clamp(38px, 5.4vw, 74px); line-height: 1.02; letter-spacing: -0.015em; }
 .display em, .hero__title em { font-style: italic; background: linear-gradient(95deg, var(--cyan), var(--blue) 35%, var(--rose) 75%, var(--amber)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .section-head { max-width: 760px; margin-bottom: clamp(32px, 5vw, 56px); }
@@ -159,6 +158,14 @@ section { position: relative; padding: clamp(80px, 10vw, 140px) var(--gutter); }
 .prop p { font-size: 14px; color: var(--muted); font-weight: 300; }
 
 /* Catalog */
+.catalog__intro { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: clamp(24px, 4vw, 64px); align-items: center; margin-bottom: clamp(32px, 5vw, 56px); }
+.catalog__intro .section-head { margin-bottom: 0; }
+.catalog__hint { margin-top: 18px; font-size: 12px; letter-spacing: 0.08em; color: var(--muted); }
+.vial-stage { position: relative; height: clamp(380px, 34vw, 520px); border-radius: 28px; border: 1px solid var(--line); background: radial-gradient(70% 60% at 50% 55%, rgba(255,255,255,0.05), transparent 70%), var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); overflow: hidden; }
+.vial-stage canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+.vial-stage__tag { position: absolute; left: 22px; top: 20px; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--muted); }
+.vial-stage.is-off { display: none; }
+html.no-3d .vial-stage { display: none; }
 .catalog__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-bottom: 28px; }
 .chips { display: flex; gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--glass); backdrop-filter: blur(12px); }
 .chips button { padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted); transition: color 0.3s, background 0.3s; }
@@ -207,22 +214,11 @@ section { position: relative; padding: clamp(80px, 10vw, 140px) var(--gutter); }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* Science */
-.science { padding-bottom: 0; }
-.science__reveal { max-width: 900px; margin: 0 auto clamp(70px, 9vw, 120px); text-align: center; }
+.science__reveal { max-width: 900px; margin: 0 auto; text-align: center; }
 .science__reveal .eyebrow { justify-content: center; }
 .science__text { margin-top: 34px; font-family: var(--serif); font-size: clamp(22px, 2.6vw, 36px); line-height: 1.32; text-wrap: pretty; }
 .science__text .w { color: rgba(238, 242, 255, 0.16); transition: color 0.25s; }
 .science__text .w.is-on { color: var(--ink); }
-.botanic { position: relative; display: grid; grid-template-columns: 1.15fr 1fr; gap: 0; margin: 0 calc(-1 * var(--gutter)); background: #e9efec; color: #16241b; }
-.botanic__figure { margin: 0; overflow: hidden; }
-.botanic__figure img { width: 100%; height: 100%; object-fit: cover; min-height: 420px; transform: scale(1.04); transition: transform 1.6s var(--ease); }
-.botanic:hover .botanic__figure img { transform: scale(1); }
-.botanic__copy { padding: clamp(40px, 6vw, 96px) clamp(28px, 5vw, 80px); display: flex; flex-direction: column; justify-content: center; }
-.botanic__copy h3 { font-family: var(--serif); font-size: clamp(30px, 3.2vw, 46px); line-height: 1.08; margin-bottom: 20px; }
-.botanic__copy p { color: #3f5247; font-size: 16px; max-width: 46ch; }
-.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
-.tags li { padding: 8px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; color: #1f3a2a; background: rgba(31, 58, 42, 0.08); border: 1px solid rgba(31, 58, 42, 0.14); }
-
 /* Process */
 .process__steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; counter-reset: step; }
 .step { position: relative; padding: 34px 30px 36px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); overflow: hidden; }
@@ -242,9 +238,13 @@ section { position: relative; padding: clamp(80px, 10vw, 140px) var(--gutter); }
 
 /* Contact */
 .contact { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(30px, 5vw, 80px); align-items: center; }
-.contact__media { position: relative; aspect-ratio: 3 / 4; border-radius: 28px; overflow: hidden; border: 1px solid var(--line); background: var(--bg-2); }
-.contact__media video { width: 100%; height: 100%; object-fit: cover; }
-.contact__media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(5,7,15,0.7)); }
+.contact__media { position: relative; aspect-ratio: 3 / 4; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.18); }
+/* a window onto the fixed 3D stage: the helix parks itself inside this frame */
+.dna-frame { background: transparent; box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 40px 120px -40px rgba(255, 45, 149, 0.45); }
+.dna-frame::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(80% 70% at 50% 50%, transparent 45%, rgba(5,7,15,0.55) 100%); pointer-events: none; }
+.dna-frame::after { content: ""; position: absolute; inset: 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.12); pointer-events: none; }
+.dna-frame__tag { position: absolute; left: 26px; bottom: 24px; z-index: 1; font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-2); }
+html.no-3d .dna-frame { background: url("assets/img/pink-portrait.webp") center / cover no-repeat; }
 .contact__list { display: grid; gap: 14px; margin: 34px 0; }
 .contact__list li { display: flex; gap: 16px; align-items: baseline; padding-bottom: 14px; border-bottom: 1px solid var(--line); font-size: 17px; }
 .contact__list span { flex: 0 0 110px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
@@ -312,8 +312,8 @@ html.no-motion .reveal, html.no-gsap .reveal { opacity: 1; transform: none; }
   .hero__scroll { display: none; }
   .process__steps, .contact { grid-template-columns: 1fr; }
   .contact__media { aspect-ratio: 4 / 3; max-height: 320px; }
-  .botanic { grid-template-columns: 1fr; }
-  .botanic__figure img { min-height: 260px; max-height: 360px; }
+  .catalog__intro { grid-template-columns: 1fr; }
+  .vial-stage { height: 340px; order: -1; }
   .catalog__status { margin-left: 0; width: 100%; }
   .catalog__grid { grid-template-columns: 1fr; }
   .footer__row { flex-direction: column; align-items: flex-start; }

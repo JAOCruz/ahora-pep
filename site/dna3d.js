@@ -1,11 +1,12 @@
 /* =====================================================================
    AhoraPep — dna3d.js
-   A bioluminescent DNA double helix made of glowing particles that
-   assembles from a cloud, spins/zooms, unravels into strands and
-   re-forms behind the following sections. Three.js r169 (importmap),
-   scrubbed by GSAP ScrollTrigger (Lenis-smoothed), palette morphing
-   blue → orange → pink. Fixed full-viewport stage; degrades to the
-   brand video/image when WebGL or the module fails.
+   A bioluminescent DNA double helix made of dense, crisp glowing
+   particles that assembles from a cloud, spins/zooms, unzips from one
+   end (rungs snap into sparks, strands spiral away) and re-forms behind
+   the following sections — finally framed inside the Contact panel.
+   Three.js r169 (importmap), GSAP ScrollTrigger (Lenis-smoothed),
+   palette morphing blue → orange → pink. Fixed full-viewport stage;
+   degrades to the brand video/image when WebGL or the module fails.
    ===================================================================== */
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -16,6 +17,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 const html = document.documentElement;
 const stage = document.getElementById('dna-stage');
 const hero = document.getElementById('hero');
+const frameEl = document.getElementById('dna-frame');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const mobile = innerWidth < 820 || !fine;
@@ -24,23 +26,25 @@ const motion = hasGsap && !reduced;
 
 /* ---------- Brand palette: [strand A, strand B, rungs] per phase ---------- */
 const PAL = [
-  ['#3d8bff', '#7dd3fc', '#dbeeff'],   // Recuperación — electric blue
-  ['#ff7a1a', '#ffb347', '#ffe3c2'],   // Energía — warm orange
-  ['#ff2d95', '#ff7ad9', '#ffd1f0'],   // Longevidad — hot pink
+  ['#3d8bff', '#8fdcff', '#eaf6ff'],   // Recuperación — electric blue
+  ['#ff7a1a', '#ffc36b', '#fff0d6'],   // Energía — warm orange
+  ['#ff2d95', '#ff8fe0', '#ffe4f6'],   // Longevidad — hot pink
 ].map(p => p.map(c => new THREE.Color(c)));
 
 /* ---------- Scroll keyframes (P: 0..1 hero pin, 1..2 rest of page) ---------- */
-const OX = mobile ? 0 : 1;               // helix sits right of the title on desktop
+const OX = mobile ? 0 : 1;
 const KF = [
+  // Hero: one continuous zoom-in — cloud → helix → fly into it while it unzips; the next section enters from the zoomed-in moment
   { p: 0.00, fAsm: 0.00, un: 0, cz: 15.5, ox: OX * 1.2, oy: 0.2, tilt: -0.55, spin: 0.0, op: 0.95, pal: 0.0, glow: 0.7 },
-  { p: 0.30, fAsm: 1.00, un: 0, cz: 11.0, ox: OX * 1.0, oy: 0.0, tilt: -0.50, spin: 1.2, op: 1.00, pal: 0.0, glow: 0.9 },
-  { p: 0.56, fAsm: 1.00, un: 0, cz: 6.6, ox: 0.0, oy: 0.0, tilt: -0.32, spin: 2.6, op: 1.00, pal: 1.0, glow: 1.1 },
-  { p: 0.80, fAsm: 1.00, un: 1, cz: 10.5, ox: 0.0, oy: 0.0, tilt: -0.18, spin: 3.6, op: 0.95, pal: 2.0, glow: 1.0 },
-  { p: 1.00, fAsm: 0.12, un: 1, cz: 14.0, ox: 0.0, oy: 0.4, tilt: 0.00, spin: 4.1, op: 0.55, pal: 2.0, glow: 0.55 },
+  { p: 0.32, fAsm: 1.00, un: 0, cz: 11.0, ox: OX * 1.0, oy: 0.0, tilt: -0.50, spin: 1.1, op: 1.00, pal: 0.0, glow: 0.9 },
+  { p: 0.62, fAsm: 1.00, un: 0, cz: 7.0, ox: 0.0, oy: 0.0, tilt: -0.34, spin: 2.3, op: 1.00, pal: 1.0, glow: 1.1 },
+  { p: 0.84, fAsm: 1.00, un: 0.75, cz: 5.2, ox: 0.0, oy: -0.3, tilt: -0.24, spin: 3.2, op: 1.00, pal: 1.8, glow: 1.0 },
+  { p: 1.00, fAsm: 1.00, un: 1, cz: 4.0, ox: 0.0, oy: -0.5, tilt: -0.18, spin: 3.8, op: 0.95, pal: 2.0, glow: 0.7 },
   { p: 1.16, fAsm: 1.00, un: 0, cz: 14.0, ox: OX * 4.4, oy: -0.8, tilt: -0.62, spin: 4.8, op: 0.38, pal: 0.0, glow: 0.45 },
   { p: 1.46, fAsm: 1.00, un: 0, cz: 12.0, ox: OX * -4.6, oy: 0.0, tilt: -0.40, spin: 6.2, op: 0.32, pal: 0.6, glow: 0.5 },
-  { p: 1.72, fAsm: 1.00, un: 0.45, cz: 12.5, ox: OX * 3.6, oy: 0.0, tilt: -0.52, spin: 7.6, op: 0.40, pal: 1.2, glow: 0.5 },
-  { p: 2.00, fAsm: 0.55, un: 1, cz: 14.5, ox: 0.0, oy: 0.0, tilt: -0.30, spin: 8.8, op: 0.35, pal: 2.0, glow: 0.45 },
+  { p: 1.70, fAsm: 1.00, un: 0.5, cz: 12.5, ox: OX * 3.6, oy: 0.0, tilt: -0.52, spin: 7.6, op: 0.40, pal: 1.2, glow: 0.5 },
+  { p: 1.86, fAsm: 1.00, un: 0, cz: 9.5, ox: 0.0, oy: 0.0, tilt: -0.12, spin: 8.6, op: 1.00, pal: 2.0, glow: 0.7 },
+  { p: 2.00, fAsm: 1.00, un: 0, cz: 9.5, ox: 0.0, oy: 0.0, tilt: -0.12, spin: 9.2, op: 1.00, pal: 2.0, glow: 0.7 },
 ];
 const FIELDS = Object.keys(KF[0]).filter(k => k !== 'p');
 const sm = t => t * t * (3 - 2 * t);
@@ -56,21 +60,34 @@ function stateAt(P, out) {
 const VERT = /* glsl */`
 uniform float uTime, uAssemble, uUnravel, uSpin, uTilt, uPr, uFocus, uCoC, uSize, uOpacity, uBreath;
 uniform vec3 uColA, uColB, uColR; uniform vec2 uOff;
-attribute vec3 aHelix, aFlat, aCloud; attribute vec4 aSeed;
-varying vec4 vCol;
+attribute vec3 aHelix, aAlt, aCloud; attribute vec4 aSeed;
+varying vec4 vCol; varying float vHot;
 mat3 rotY(float a){ float c = cos(a), s = sin(a); return mat3(c, 0., -s, 0., 1., 0., s, 0., c); }
 mat3 rotZ(float a){ float c = cos(a), s = sin(a); return mat3(c, s, 0., -s, c, 0., 0., 0., 1.); }
 void main(){
-  float kind = aSeed.z, rnd = aSeed.x;
-  vec3 p;
-  float fAsm = 0.0;
+  float kind = aSeed.z, rnd = aSeed.x, t = aSeed.w;
+  vec3 p; float fAsm = 0.0, spark = 0.0, coc = 0.0, u = 0.0;
   if (kind > 2.5) {
-    // ambient plankton: slow drift, never assembles
+    // ambient plankton: slow drift, never assembles, carries the bokeh
     p = aHelix + 0.6 * vec3(sin(uTime * 0.21 + rnd * 6.283), cos(uTime * 0.17 + rnd * 4.1), sin(uTime * 0.13 + rnd * 2.7));
   } else {
-    vec3 h = mix(aHelix, aFlat, uUnravel);
-    vec3 local = rotZ(uTilt) * rotY(uSpin * (1.0 - 0.55 * uUnravel)) * h;
-    local += 0.06 * uBreath * vec3(sin(uTime * 0.9 + rnd * 6.283), cos(uTime * 0.7 + rnd * 3.1), sin(uTime * 0.8 + rnd * 9.4));
+    // unzip front travels from the bottom (t=0) to the top (t=1)
+    u = smoothstep(0.0, 1.0, clamp((uUnravel * 1.3 - t) / 0.3, 0.0, 1.0));
+    float side = kind < 0.5 ? -1.0 : (kind < 1.5 ? 1.0 : 0.0);
+    vec3 h;
+    if (kind < 1.5) {
+      // strands: peel out along an arc and settle into their own loose spirals (aAlt)
+      h = mix(aHelix, aAlt, u);
+      h.x += side * sin(u * 3.14159) * 0.9;
+      h.y += sin(u * 3.14159) * 0.35 * (rnd - 0.5);
+    } else {
+      // rungs: snap apart into sparks that fly outward and fade
+      h = mix(aHelix, aAlt, u);
+      h.y -= u * u * 1.2 * rnd;
+      spark = u;
+    }
+    vec3 local = rotZ(uTilt) * rotY(uSpin) * h;
+    local += 0.045 * uBreath * vec3(sin(uTime * 0.9 + rnd * 6.283), cos(uTime * 0.7 + rnd * 3.1), sin(uTime * 0.8 + rnd * 9.4));
     vec3 cloud = aCloud + 0.45 * vec3(sin(uTime * 0.25 + rnd * 6.283), cos(uTime * 0.2 + rnd * 4.0), sin(uTime * 0.3 + rnd * 2.0));
     float lag = kind > 1.5 ? 0.22 : 0.0;                        // rungs bridge after the strands settle
     fAsm = smoothstep(0.0, 1.0, clamp((uAssemble - lag) * 1.25 + (rnd - 0.5) * 0.3, 0.0, 1.0));
@@ -79,55 +96,32 @@ void main(){
   p.xy += uOff;
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   float d = max(-mv.z, 0.5);
-  float coc = clamp(abs(d - uFocus) * uCoC, 0.0, 1.0);                 // bokeh: off-focus particles bloom & dim
-  float sz = aSeed.y * uSize * uPr * (1.0 + coc * 1.4) * 190.0 / d;
-  gl_PointSize = clamp(sz, 1.0, 34.0 * uPr);
-  float a = 0.26 * uOpacity * (1.0 - coc * 0.85) * smoothstep(42.0, 14.0, d) * clamp(1.0 / aSeed.y, 0.2, 1.0);
-  a *= 0.78 + 0.22 * sin(uTime * 1.7 + rnd * 50.0);
+  if (kind > 2.5) coc = clamp(abs(d - uFocus) * uCoC, 0.0, 1.0);   // bokeh only on the depth layers
+  else coc = 0.35 * (1.0 - fAsm);                                  // slight softness while still a cloud
+  float sz = aSeed.y * uSize * uPr * (1.0 + coc * 3.0 + spark * 0.8 + u * 0.7) * 150.0 / d;
+  gl_PointSize = clamp(sz, 1.0, (kind > 2.5 ? 40.0 : 18.0) * uPr);
+  float a = uOpacity * (1.0 - coc * 0.8) * smoothstep(44.0, 16.0, d) * (0.55 + 0.45 * aSeed.y);
+  a *= 0.82 + 0.18 * sin(uTime * 1.7 + rnd * 50.0);
   vec3 col;
   if (kind < 0.5) col = uColA;
   else if (kind < 1.5) col = uColB;
-  else if (kind < 2.5) { col = uColR; a *= (1.0 - uUnravel) * (0.35 + 0.65 * fAsm); }
-  else { col = mix(uColA, uColB, rnd); a *= 0.3; }
+  else if (kind < 2.5) { col = mix(uColR, uColB, 0.35 + 0.4 * rnd); a *= (1.0 - spark * spark) * (0.4 + 0.6 * fAsm); }
+  else { col = mix(uColA, uColB, rnd); a *= 0.28; }
   if (kind < 2.5) { col = mix(mix(uColA, uColB, rnd) * 0.8, col, fAsm); a *= 0.55 + 0.45 * fAsm; }
+  vHot = kind > 2.5 ? 0.15 : (0.45 + 0.55 * fract(rnd * 9.7)) * (1.0 - 0.5 * (1.0 - fAsm)) + spark * 0.6;
   vCol = vec4(col, a);
   gl_Position = projectionMatrix * mv;
 }`;
 const FRAG = /* glsl */`
-varying vec4 vCol;
+varying vec4 vCol; varying float vHot;
 void main(){
   float r = length(gl_PointCoord - 0.5) * 2.0;
-  float g = exp(-r * r * 3.4) * (1.0 - smoothstep(0.8, 1.0, r));
-  float core = exp(-r * r * 16.0);
-  vec3 c = vCol.rgb * (0.7 + 0.6 * core) + core * 0.10;
+  float g = exp(-r * r * 6.5) * (1.0 - smoothstep(0.7, 1.0, r));
+  float core = exp(-r * r * 26.0);
+  vec3 c = vCol.rgb * (0.75 + 0.5 * core) + vec3(core) * 0.55 * vHot;
   float a = vCol.a * g;
-  if (a < 0.003) discard;
+  if (a < 0.004) discard;
   gl_FragColor = vec4(c, a);
-}`;
-const PETAL_VERT = /* glsl */`
-uniform float uTime, uPr, uOpacity; attribute float aSeed; varying float vRot; varying float vA; varying float vMix;
-void main(){
-  vec3 p = position;
-  p.y = mod(position.y + uTime * (0.10 + 0.12 * aSeed) + 7.0, 14.0) - 7.0;
-  p.x += sin(uTime * 0.45 + aSeed * 6.283) * 0.6;
-  p.z += cos(uTime * 0.3 + aSeed * 4.0) * 0.3;
-  vRot = uTime * (0.25 + 0.5 * aSeed) + aSeed * 6.283;
-  vMix = fract(aSeed * 13.7);
-  vec4 mv = modelViewMatrix * vec4(p, 1.0);
-  float d = max(-mv.z, 0.5);
-  gl_PointSize = clamp((1.3 + 1.4 * fract(aSeed * 7.3)) * uPr * 200.0 / d, 2.0, 44.0 * uPr);
-  vA = uOpacity * smoothstep(30.0, 10.0, d) * (0.5 + 0.5 * sin(uTime * 0.6 + aSeed * 20.0));
-  gl_Position = projectionMatrix * mv;
-}`;
-const PETAL_FRAG = /* glsl */`
-uniform sampler2D uTex; varying float vRot; varying float vA; varying float vMix;
-void main(){
-  vec2 uv = gl_PointCoord - 0.5; float c = cos(vRot), s = sin(vRot);
-  uv = vec2(c * uv.x - s * uv.y, s * uv.x + c * uv.y) + 0.5;
-  float m = texture2D(uTex, uv).a;
-  vec3 col = mix(vec3(1.0, 0.62, 0.80), vec3(0.55, 0.92, 0.66), step(0.5, vMix));
-  if (m * vA < 0.004) discard;
-  gl_FragColor = vec4(col, m * vA);
 }`;
 const BG_FRAG = /* glsl */`
 uniform float uTime, uGlow; uniform vec2 uRes; uniform vec3 uC1, uC2;
@@ -147,43 +141,39 @@ function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Ma
 /* ---------- Geometry ---------- */
 function buildHelix() {
   const rng = mulberry(42);
-  const nS = mobile ? 1500 : 2800, nR = mobile ? 46 : 72, mR = mobile ? 9 : 14, nA = mobile ? 500 : 1100;
-  const H = 10, R = 1.45, TURNS = 2.6, TAU = Math.PI * 2;
+  const nS = mobile ? 3200 : 6200, nR = mobile ? 60 : 92, mR = mobile ? 16 : 26, nA = mobile ? 420 : 900;
+  const H = 10, R = 1.45, TURNS = 2.6, TAU = Math.PI * 2, TUBE = 0.2;
   const N = nS * 2 + nR * mR + nA;
-  const helix = new Float32Array(N * 3), flat = new Float32Array(N * 3), cloud = new Float32Array(N * 3), seed = new Float32Array(N * 4);
+  const helix = new Float32Array(N * 3), alt = new Float32Array(N * 3), cloud = new Float32Array(N * 3), seed = new Float32Array(N * 4);
   let i = 0;
-  const put = (h, f, c, s) => { helix.set(h, i * 3); flat.set(f, i * 3); cloud.set(c, i * 3); seed.set(s, i * 4); i++; };
+  const put = (h, f, c, s) => { helix.set(h, i * 3); alt.set(f, i * 3); cloud.set(c, i * 3); seed.set(s, i * 4); i++; };
   const cloudPt = () => { const u = rng() * 2 - 1, ph = rng() * TAU, r = 3 + rng() * 8; const q = Math.sqrt(1 - u * u); return [Math.cos(ph) * q * r * 1.5, u * r * 0.9, Math.sin(ph) * q * r * 0.7 - 1]; };
   const strandPt = (t, s) => { const a = t * TURNS * TAU + s * Math.PI; return [Math.cos(a) * R, (t - 0.5) * H, Math.sin(a) * R]; };
-  const flatPt = (t, s) => { const a = t * TURNS * TAU + s * Math.PI; const side = s ? 1 : -1; return [side * 2.6 + Math.sin(a) * 0.45, (t - 0.5) * H * 1.08, Math.cos(a) * 0.25]; };
+  // each strand's own loose spiral, displaced sideways, used when the helix unzips
+  const spiralPt = (t, s) => { const a = t * TURNS * TAU * 2.0 + s * Math.PI, side = s ? 1 : -1; return [side * 1.55 + Math.cos(a) * 0.8, (t - 0.5) * H * 1.06, Math.sin(a) * 0.8]; };
+  const tube = (p, r) => { const u = rng() * 2 - 1, ph = rng() * TAU, q = Math.sqrt(1 - u * u) * r * Math.cbrt(rng()); return [p[0] + Math.cos(ph) * q, p[1] + u * r * Math.cbrt(rng()), p[2] + Math.sin(ph) * q]; };
   for (let s = 0; s < 2; s++) for (let k = 0; k < nS; k++) {
-    const t = (k + rng()) / nS, halo = rng() < 0.15;
-    const h = strandPt(t, s), f = flatPt(t, s), j = halo ? 0.55 : 0.1;
-    for (let d = 0; d < 3; d++) { const o = (rng() - 0.5) * j; h[d] += o; f[d] += o * 1.6; }
-    put(h, f, cloudPt(), [rng(), halo ? 1.5 + rng() * 1.0 : 0.6 + rng() * 0.5, s, t]);
+    const t = (k + rng()) / nS, o = [(rng() - 0.5) * TUBE * 1.4, (rng() - 0.5) * TUBE * 1.4, (rng() - 0.5) * TUBE * 1.4];
+    const h = tube(strandPt(t, s), TUBE), f = spiralPt(t, s).map((v, d) => v + o[d]);
+    put(h, f, cloudPt(), [rng(), 0.5 + rng() * 0.6, s, t]);
   }
   for (let r = 0; r < nR; r++) {
-    const t = (r + 0.5) / nR, A = strandPt(t, 0), B = strandPt(t, 1), fa = flatPt(t, 0), fb = flatPt(t, 1);
+    const t = (r + 0.5) / nR, A = strandPt(t, 0), B = strandPt(t, 1);
     for (let m = 0; m < mR; m++) {
-      const u = (m + 0.5) / mR, h = A.map((v, d) => v + (B[d] - v) * u + (rng() - 0.5) * 0.06), f = fa.map((v, d) => v + (fb[d] - v) * u + (rng() - 0.5) * 0.8);
-      put(h, f, cloudPt(), [rng(), 0.55 + rng() * 0.4, 2, t]);
+      const u = 0.06 + 0.88 * (m + rng()) / mR, h = tube(A.map((v, d) => v + (B[d] - v) * u), 0.11);
+      const dir = [h[0], 0, h[2]], L = Math.hypot(dir[0], dir[2]) || 1, burst = 1.5 + rng() * 3;
+      const f = [h[0] + dir[0] / L * burst + (rng() - 0.5) * 2, h[1] + (rng() - 0.3) * 2, h[2] + dir[2] / L * burst + (rng() - 0.5) * 2];
+      put(h, f, cloudPt(), [rng(), 0.5 + rng() * 0.55, 2, t]);
     }
   }
-  for (let k = 0; k < nA; k++) { const p = [(rng() - 0.5) * 22, (rng() - 0.5) * 14, (rng() - 0.5) * 8 - 2]; put(p, p, p, [rng(), 0.7 + rng() * 1.6, 3, 0]); }
+  for (let k = 0; k < nA; k++) { const p = [(rng() - 0.5) * 24, (rng() - 0.5) * 14, (rng() - 0.5) * 12 - 1]; put(p, p, p, [rng(), 0.8 + rng() * 1.8, 3, 0]); }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(helix, 3));
   g.setAttribute('aHelix', new THREE.BufferAttribute(helix, 3));
-  g.setAttribute('aFlat', new THREE.BufferAttribute(flat, 3));
+  g.setAttribute('aAlt', new THREE.BufferAttribute(alt, 3));
   g.setAttribute('aCloud', new THREE.BufferAttribute(cloud, 3));
   g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 4));
   return g;
-}
-function petalTexture() {
-  const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d');
-  const grd = x.createRadialGradient(32, 30, 4, 32, 32, 30); grd.addColorStop(0, 'rgba(255,255,255,0.95)'); grd.addColorStop(0.75, 'rgba(255,255,255,0.5)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
-  x.fillStyle = grd; x.beginPath(); x.ellipse(32, 32, 12, 28, 0, 0, Math.PI * 2); x.fill();
-  x.globalCompositeOperation = 'destination-out'; x.beginPath(); x.ellipse(32, 32, 1.2, 22, 0, 0, Math.PI * 2); x.fill();
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
 /* ---------- Main ---------- */
@@ -193,52 +183,42 @@ function main() {
   const canvas = document.createElement('canvas');
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'high-performance', stencil: false, depth: false });
   if (!renderer.getContext()) throw new Error('no context');
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile ? 1.25 : 1.75));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, mobile ? 1.5 : 2));
   renderer.setClearColor(0x04060d, 1);
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
   stage.appendChild(canvas);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(mobile ? 50 : 40, 1, 0.1, 80);
+  const camera = new THREE.PerspectiveCamera(mobile ? 50 : 40, 1, 0.05, 80);
   const clock = new THREE.Clock();
 
-  // background glow
   const bgU = { uTime: { value: 0 }, uGlow: { value: 0.7 }, uRes: { value: new THREE.Vector2(1, 1) }, uC1: { value: PAL[0][0].clone() }, uC2: { value: PAL[0][1].clone() } };
   const bg = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ uniforms: bgU, depthWrite: false, depthTest: false, vertexShader: 'void main(){ gl_Position = vec4(position.xy, 0.9999, 1.0); }', fragmentShader: BG_FRAG }));
   bg.frustumCulled = false; bg.renderOrder = -10; scene.add(bg);
 
-  // helix particles
   const U = {
     uTime: { value: 0 }, uAssemble: { value: 0 }, uUnravel: { value: 0 }, uSpin: { value: 0 }, uTilt: { value: -0.5 }, uPr: { value: renderer.getPixelRatio() },
-    uFocus: { value: 12 }, uCoC: { value: 0.1 }, uSize: { value: mobile ? 0.9 : 1.0 }, uOpacity: { value: 1 }, uBreath: { value: 1 },
+    uFocus: { value: 12 }, uCoC: { value: 0.12 }, uSize: { value: mobile ? 0.9 : 1.0 }, uOpacity: { value: 1 }, uBreath: { value: 1 },
     uColA: { value: PAL[0][0].clone() }, uColB: { value: PAL[0][1].clone() }, uColR: { value: PAL[0][2].clone() }, uOff: { value: new THREE.Vector2() },
   };
   const helix = new THREE.Points(buildHelix(), new THREE.ShaderMaterial({ uniforms: U, vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending }));
   helix.frustumCulled = false; scene.add(helix);
 
-  // botanical nod: a few drifting petals / leaves
-  const nP = mobile ? 22 : 44, pg = new THREE.BufferGeometry(), pp = new Float32Array(nP * 3), ps = new Float32Array(nP), prng = mulberry(7);
-  for (let k = 0; k < nP; k++) { pp.set([(prng() - 0.5) * 20, (prng() - 0.5) * 14, (prng() - 0.5) * 6 - 3], k * 3); ps[k] = prng(); }
-  pg.setAttribute('position', new THREE.BufferAttribute(pp, 3)); pg.setAttribute('aSeed', new THREE.BufferAttribute(ps, 1));
-  const PU = { uTime: { value: 0 }, uPr: { value: renderer.getPixelRatio() }, uOpacity: { value: 0.4 }, uTex: { value: petalTexture() } };
-  const petals = new THREE.Points(pg, new THREE.ShaderMaterial({ uniforms: PU, vertexShader: PETAL_VERT, fragmentShader: PETAL_FRAG, transparent: true, depthWrite: false, depthTest: false, blending: THREE.NormalBlending }));
-  petals.frustumCulled = false; scene.add(petals);
-
-  // bloom (desktop only; additive particles already glow on mobile)
+  // bloom: tight radius so the strands stay crisp (desktop only)
   let composer = null, bloom = null;
   if (!mobile) {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.35, 0.5, 0.6);
+    bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.3, 0.18, 0.72);
     composer.addPass(bloom); composer.addPass(new OutputPass());
   }
 
   /* ---------- State ---------- */
-  const S = { P: 0, view: true, ptr: { x: 0, y: 0, tx: 0, ty: 0 }, intro: 0 };
+  const S = { P: 0, ptr: { x: 0, y: 0, tx: 0, ty: 0 }, intro: 0 };
   const st = {}; const tmpA = new THREE.Color(), tmpB = new THREE.Color(), tmpR = new THREE.Color();
   const hudPhases = [...hero.querySelectorAll('.hud__phases span')], legend = [...hero.querySelectorAll('.hero__legend span')];
   const hudCap = document.getElementById('hud-caption'), hudBar = document.getElementById('hud-bar');
-  const CAPTIONS = ['Miles de señales moleculares, todavía sin orden.', 'La estructura emerge: secuencia, pureza, precisión.', 'Cada hebra, un compuesto documentado listo para tu investigación.'];
+  const CAPTIONS = ['Miles de señales moleculares, todavía sin orden.', 'La estructura emerge: secuencia, pureza, precisión.', 'La hélice se abre: cada hebra, un compuesto documentado.'];
   let phase = -1, leg = -1;
 
   function palette(v) {
@@ -248,21 +228,34 @@ function main() {
     U.uColR.value.copy(tmpR.copy(A[2]).lerp(B[2], t));
     bgU.uC1.value.copy(U.uColA.value); bgU.uC2.value.copy(U.uColB.value);
   }
+  // Contact panel: aim the helix at the framed window (world offset at z=0 for the panel centre)
+  function frameTarget(cz) {
+    if (!frameEl) return null;
+    const r = frameEl.getBoundingClientRect();
+    if (r.width === 0) return null;
+    const nx = ((r.left + r.width / 2) / innerWidth) * 2 - 1, ny = 1 - ((r.top + r.height / 2) / innerHeight) * 2;
+    const hh = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * cz;
+    return { x: nx * hh * camera.aspect, y: ny * hh, fit: (r.height / innerHeight) * hh * 2 };
+  }
   function update(dt, t) {
     stateAt(S.P, st);
     const idle = motion ? t * 0.12 : 0;
-    U.uTime.value = PU.uTime.value = bgU.uTime.value = t;
+    let ox = st.ox, oy = st.oy, cz = st.cz;
+    if (S.P > 1.74) {
+      const w = sm(Math.min(1, (S.P - 1.74) / 0.14)), f = frameTarget(cz);
+      if (f) { ox += (f.x - ox) * w; oy += (f.y - oy) * w; }
+    }
+    U.uTime.value = bgU.uTime.value = t;
     U.uAssemble.value = st.fAsm * (motion ? S.intro : 1);
     U.uUnravel.value = st.un; U.uSpin.value = st.spin + idle; U.uTilt.value = st.tilt;
-    U.uOpacity.value = st.op; U.uOff.value.set(st.ox, st.oy); U.uFocus.value = st.cz * 0.92;
-    bgU.uGlow.value = st.glow; PU.uOpacity.value = 0.1 + 0.12 * st.op;
+    U.uOpacity.value = st.op; U.uOff.value.set(ox, oy); U.uFocus.value = cz;
+    bgU.uGlow.value = st.glow;
     palette(st.pal);
-    camera.position.set(S.ptr.x * 1.1, -S.ptr.y * 0.7, st.cz);
+    camera.position.set(S.ptr.x * 1.1, -S.ptr.y * 0.7, cz);
     camera.lookAt(S.ptr.x * 0.3, -S.ptr.y * 0.2, 0);
-    if (bloom) bloom.strength = 0.22 + 0.18 * st.glow;
-    // HUD
+    if (bloom) bloom.strength = 0.18 + 0.16 * st.glow;
     if (S.P <= 1) {
-      const idx = S.P < 0.3 ? 0 : S.P < 0.64 ? 1 : 2;
+      const idx = S.P < 0.3 ? 0 : S.P < 0.7 ? 1 : 2;
       if (idx !== phase) { phase = idx; hudPhases.forEach((s, i) => s.classList.toggle('is-on', i === idx)); hudCap.textContent = CAPTIONS[idx]; }
       const l = Math.round(st.pal);
       if (l !== leg) { leg = l; legend.forEach((s, i) => s.classList.toggle('is-on', i === l)); }
@@ -276,16 +269,21 @@ function main() {
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     composer && composer.setSize(w, h);
     const dpr = renderer.getPixelRatio();
-    bgU.uRes.value.set(w * dpr, h * dpr); U.uPr.value = PU.uPr.value = dpr;
+    bgU.uRes.value.set(w * dpr, h * dpr); U.uPr.value = dpr;
   }
   resize(); addEventListener('resize', resize);
-  let raf = 0, running = false, slow = 0, frames = 0, degraded = false;
-  const degrade = () => { degraded = true; renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1)); if (bloom) { composer.removePass(bloom); bloom.dispose(); bloom = null; } resize(); };
+  let raf = 0, running = false, slow = 0, frames = 0, degraded = 0;
+  const degrade = () => {
+    degraded++; slow = 0; frames = 0;
+    if (degraded === 1) renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.25));
+    else { renderer.setPixelRatio(1); if (bloom) { composer.removePass(bloom); bloom.dispose(); bloom = null; } }
+    resize();
+  };
   const frame = () => {
     raf = 0;
     if (document.hidden) { running = false; return; }
     const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
-    if (!degraded && ++frames > 90) { if (dt > 0.024) slow++; else slow = Math.max(0, slow - 1); if (slow > 24) degrade(); }
+    if (degraded < 2 && ++frames > 90) { if (dt > 0.024) slow++; else slow = Math.max(0, slow - 1); if (slow > 24) degrade(); }
     S.ptr.x += (S.ptr.tx - S.ptr.x) * 0.05; S.ptr.y += (S.ptr.ty - S.ptr.y) * 0.05;
     update(dt, t);
     composer ? composer.render() : renderer.render(scene, camera);
@@ -298,9 +296,9 @@ function main() {
   /* ---------- Scroll story ---------- */
   html.classList.add('has-3d');
   if (motion) {
-    const pinLen = () => Math.round(innerHeight * (mobile ? 2.6 : 3.2));
+    const pinLen = () => Math.round(innerHeight * (mobile ? 1.8 : 2.0));
     const tl = gsap.timeline({ paused: true });
-    tl.to('.hero__inner', { yPercent: -14, opacity: 0, scale: 0.96, ease: 'power2.in', duration: 1 }, 0).to({}, { duration: 2.6 });
+    tl.to('.hero__inner', { yPercent: -14, opacity: 0, scale: 0.96, ease: 'power2.in', duration: 1 }, 0).to({}, { duration: 2.2 });
     ScrollTrigger.create({
       trigger: hero, start: 'top top', end: () => '+=' + pinLen(), pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true, refreshPriority: 5, animation: tl,
       onUpdate: self => { S.P = self.progress; hero.classList.toggle('is-story', self.progress > 0.02); },
@@ -318,11 +316,10 @@ function main() {
     } else introGo();
     ScrollTrigger.refresh();
   } else {
-    // Reduced motion (or no GSAP): a still, assembled helix beside the title
     S.P = 0.34; S.intro = 1; U.uBreath.value = 0;
     addEventListener('resize', () => start());
   }
-  window.__dna = { get p() { return S.P; }, get degraded() { return degraded; }, get n() { return helix.geometry.attributes.position.count; } };
+  window.__dna = { get p() { return S.P; }, get degraded() { return degraded; }, get n() { return helix.geometry.attributes.position.count; }, get dpr() { return renderer.getPixelRatio(); } };
   update(0, 0);
   renderer.compile(scene, camera);
   start();
